@@ -6,7 +6,8 @@ PR 1: write a dummy docker file with a simple server and push it to your docker 
 
 Docker image is hosted on the Docker hub:
 
-https://hub.docker.com/repository/docker/yevhenk10s/prjctr02-infrastructure
+https://hub.docker.com/r/yevhenk10s/prjctr02-infrastructure
+
 
 ### Quick Start
 
