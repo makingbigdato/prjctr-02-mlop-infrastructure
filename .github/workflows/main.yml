@@ -58,11 +58,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Trigger deploy
-        uses: Jberlinsky/kubernetes-action@master
+      - name: test env
         run: |
           ls -lah
           pwd
+      - name: Trigger deploy
+        uses: Jberlinsky/kubernetes-action@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
