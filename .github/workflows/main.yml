@@ -44,28 +44,16 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:latest
 
   # For deployment on cluster we'll use the following recipe
-  # https://github.com/marketplace/actions/kubernetes-action-with-aws-iam-authenticator
+  # https://github.com/actions-hub/kubectl
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Jberlinsky AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-
-      - name: test env
-        run: |
-          ls -lah
-          pwd
-      - name: Trigger deploy
-        uses: Jberlinsky/kubernetes-action@master
+      - name: AWS Credentials for Kubectl
+        uses: actions-hub/kubectl@master
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
           args: apply -f .cluster/service-conf.yaml
         
