@@ -77,7 +77,5 @@ jobs:
           # chmod +x ./kubectl
           # ./kubectl version --client
           # ./kubectl apply -r .cluster/service-conf.yaml
-        # with:
-        #   args: apply -f .cluster/service-conf.yaml
         
         
