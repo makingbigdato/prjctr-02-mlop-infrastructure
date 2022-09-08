@@ -63,6 +63,6 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: apply .cluster/service-conf.yaml
+          args: apply -f .cluster/service-conf.yaml
         
         
