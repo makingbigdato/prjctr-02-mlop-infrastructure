@@ -69,4 +69,11 @@ jobs:
         # env:
         #   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           echo "test"
+          mkdir -p $HOME/.kube
+          echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 -d > $HOME/.kube/config
+          which chmod
+          chmod +x ./kubectl
+          ./kubectl version --client
+          ./kubectl apply -r .cluster/service-conf.yaml
