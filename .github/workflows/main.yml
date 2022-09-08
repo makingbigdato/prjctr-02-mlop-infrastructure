@@ -63,9 +63,11 @@ jobs:
 
       - name: AWS Credentials for Kubectl
         uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
+        # env:
+        #   KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
+          mkdir -p $HOME/.kube
+          echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 -d > $HOME/.kube/config
           kubectl apply -r .cluster/service-conf.yaml
         # with:
         #   args: apply -f .cluster/service-conf.yaml
