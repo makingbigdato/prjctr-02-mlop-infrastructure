@@ -54,17 +54,13 @@ jobs:
         run: |
           which aws
           aws --version
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install --update
-          which aws
-          aws --version
 
       - name: AWS Credentials for Kubectl
         uses: actions-hub/kubectl@master
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          args: apply -f .cluster/service-conf.yaml
+          # args: apply -f .cluster/service-conf.yaml
+          args: get pods
         
         
