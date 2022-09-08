@@ -61,6 +61,9 @@ jobs:
           echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
           cat ~/.aws/credentials
 
+      - name: curl
+        uses: wei/curl@v1
+
       - name: AWS Credentials for Kubectl
         # XSuses: actions-hub/kubectl@master
         # env:
@@ -68,7 +71,6 @@ jobs:
         run: |
           mkdir -p $HOME/.kube
           echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 -d > $HOME/.kube/config
-          sudo apt install -y curl
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           ./kubectl version --client
