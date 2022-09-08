@@ -65,7 +65,9 @@ jobs:
         uses: actions-hub/kubectl@master
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
-        with:
-          args: apply -f .cluster/service-conf.yaml
+        run: |
+          kubectl apply -r .cluster/service-conf.yaml
+        # with:
+        #   args: apply -f .cluster/service-conf.yaml
         
         
