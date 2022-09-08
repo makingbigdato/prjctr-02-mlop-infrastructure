@@ -1,0 +1,39 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: web-dl-deployment
+  labels:
+    app : my-k8s-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: web-nlp-app
+  template:
+    metadata:
+      labels:
+        project: web-nlp-app   # Service will look for those PODS Labels!!!
+    spec:
+      containers:
+        - name : web-app-container
+          image: yevhenk10s/prjctr02-infrastructure:latest
+          ports:
+            - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-single-pod-service
+  labels:
+    env  : prod
+    owner: yevhen
+spec:
+  selector:
+    project: web-nlp-app    # Selecting PODS with those Labels
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 80  # Port on Load Balancer
+      targetPort: 5000  # Port on POD
+  type: LoadBalancer

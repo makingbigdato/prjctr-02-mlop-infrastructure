@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches: [ "ft/cluster-setup" ]  # "master"
   pull_request:
-    branches: [ "master" ]
+    branches: [ "ft/cluster-setup" ]  # "master"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -42,3 +42,27 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:latest
+
+  # For deployment on cluster we'll use the following recipe
+  # https://github.com/marketplace/actions/kubernetes-action-with-aws-iam-authenticator
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Jberlinsky AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Trigger deploy
+        uses: Jberlinsky/kubernetes-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        with:
+          args: apply .cluster/service-conf.yaml
+        
+        

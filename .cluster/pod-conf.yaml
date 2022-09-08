@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-dl
+  labels:
+    env: prod
+    app: nlp
+    owner: yevhen
+spec:
+  containers:
+  - name: dl-web
+    image: yevhenk10s/prjctr02-infrastructure:latest
+    ports:
+      - containerPort: 5000
+
