@@ -42,3 +42,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:buildcache,mode=max
