@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-dl-deployment
+spec:
+  selector:
+    matchLabels:
+      app: web-nlp-app
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: web-nlp-app
+    spec:
+      containers:
+        - name: web-app-container
+          image: yevhenk10s/prjctr02-infrastructure:latest
+          ports:
+          - containerPort: 5000

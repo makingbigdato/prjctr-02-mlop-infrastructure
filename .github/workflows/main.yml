@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches: [ "ft/cluster-setup" ]  # "master"
   pull_request:
-    branches: [ "master" ]
+    branches: [ "ft/cluster-setup" ]  # "master"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -44,3 +44,29 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/prjctr02-infrastructure:buildcache,mode=max
+
+  # For deployment on cluster we'll use self-made recipes :)
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install aws cli
+        run: |
+          which aws
+          aws --version
+          mkdir -p ~/.aws
+          touch ~/.aws/credentials
+          echo "[default]" >> ~/.aws/credentials
+          echo "aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          cat ~/.aws/credentials
+
+      - name: Run Kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d >> ~/.kube/config
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          ./kubectl version --client
+          ./kubectl apply -f .cluster/service-conf.yaml
