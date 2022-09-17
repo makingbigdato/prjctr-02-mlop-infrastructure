@@ -207,3 +207,6 @@ kubectl port-forward service/mytenant-console 9090:9090 -n minio-tenant-1
     './file_uploader.py' is successfully uploaded as object 'file_uploader.py' to bucket 'dataset'.
     ```
 
+## YAML way of deployment
+
+Please, see the reference: https://github.com/kubernetes/examples/tree/master/staging/storage/minio
