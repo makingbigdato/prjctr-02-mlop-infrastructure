@@ -210,3 +210,33 @@ kubectl port-forward service/mytenant-console 9090:9090 -n minio-tenant-1
 ## YAML way of deployment
 
 Please, see the reference: https://github.com/kubernetes/examples/tree/master/staging/storage/minio
+
+
+## Parallelization benchmarking
+
+### Data Set
+
+Data Set is available on the Kaggle [competition](https://www.kaggle.com/competitions/commonlitreadabilityprize/overview).
+
+### Data Set Integration
+
+Download `train.csv` files from Kaggle competition site and put the file in the `./dataset` folder.
+
+### Benchmarking Summary
+
+```
+Number of cpus                      : 8
+Dataset len                         : 2834
+
+[Single Process] Preprocessing      : 00:00:05
+[Single Process] Inference          : 00:01:56
+[Single Process] Total              : 00:02:02
+
+[Multiple Processes] Preprocessing  : 00:00:01
+[Multiple Processes] Inference      : 00:01:52
+[Multiple Processes] Total          : 00:01:53
+```
+
+### Conclusion
+
+For the current setup and amount of data the bottleneck of the pipeline is the inference stage, not the data preprocessing stage.
