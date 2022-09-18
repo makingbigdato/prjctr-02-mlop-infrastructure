@@ -7,3 +7,4 @@ transformers==4.20.1
 gdown==4.5.1
 nltk==3.7
 dvc==2.26.2
+dvc-s3==2.20.0
