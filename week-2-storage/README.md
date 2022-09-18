@@ -240,3 +240,67 @@ Dataset len                         : 2834
 ### Conclusion
 
 For the current setup and amount of data the bottleneck of the pipeline is the inference stage, not the data preprocessing stage.
+
+## DVC Setup with MinIO support
+
+1. Install DVC with PIP:
+
+```bash
+pip install dvc dvc-s3
+```
+
+2. Initilalize DVC
+
+```bash
+dvc init
+```
+
+3. Add dataset to DVC
+
+```bash
+dvc add week-2-storage/dataset
+```
+
+4. Add to git updated files
+
+```bash
+git add week-2-storage/dataset.dvc week-2-storage/.gitignore
+git commit -m "Add raw data"
+```
+
+5. Configure DVC to work with MinOI
+
+**It is NOT SECURE** to store secrets in the repo. It is done for educational purposes only!
+
+```bash
+dvc remote add -d minio s3://dataset -f
+dvc remote modify minio secret_access_key miniopassword
+dvc remote modify minio access_key_id miniouser
+dvc remote modify minio endpointurl http://localhost:8080
+git add .dvc/config
+git commit -m "Configure remote storage"
+```
+
+6. Push dataset to the minio service
+
+```bash
+dvc push
+```
+
+7. Push all changes to git
+
+```bash
+git push
+```
+
+8. [OPTIONAL] Check if dvc pushed dataset to the minio server
+
+```bash
+mc ls local
+mc ls local/dataset
+```
+
+### References:
+- https://dvc.org/doc/start/data-management
+- https://stackoverflow.com/questions/67635688/installation-dvc-on-minio-storage
+
