@@ -8,3 +8,4 @@ gdown==4.5.1
 nltk==3.7
 dvc==2.26.2
 dvc-s3==2.20.0
+label-studio==1.5.0.post0

@@ -304,3 +304,37 @@ mc ls local/dataset
 - https://dvc.org/doc/start/data-management
 - https://stackoverflow.com/questions/67635688/installation-dvc-on-minio-storage
 
+## Label Studio
+
+Installation
+
+```bash
+pip install label-studio
+label-studio start
+```
+
+Whait for a while for initial set up complete. Then navigate to `localhost:8080`
+
+Usage
+
+1. Create account
+```
+login: user-cli@example.com
+password: password
+```
+2. Create project
+3. Upload folder with images
+4. Select a task (for example, image classification)
+5. Start labeling
+6. After labeling is done you can export results of labeling in different formats (csv, json)
+
+Observations
+
+1. Labeling image for classification task (binary classification) took 14 minutes for 50 images
+2. Tha lack of keyboard shortcuts makes it difficult to swiftly label images
+3. Some UI bugs meke it difficult tu label images
+4. Sloooow response for submitting class for image. Usually it takes 10-15 seconds to submit/update image class in constrast to 1-2 seconds for labeling itself.
+
+Labeling process could take just 2-4 minutes if there were no UI bugs, convenient keyboard shortcuts, and high speed for updating/submitting image class.
+
+Annotations are available in `./week-2-storage/project-1-at-2022-09-18-11-29-88db0606.csv` file.
