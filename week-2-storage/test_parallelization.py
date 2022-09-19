@@ -13,6 +13,7 @@ import os
 import gdown
 import multiprocessing
 import torch.multiprocessing as mp
+from pathlib import Path
 
 
 """
@@ -30,6 +31,10 @@ Dataset len                         : 2834
 Ideas for text processing were taken from:
 - https://towardsdatascience.com/a-guide-to-cleaning-text-in-python-943356ac86ca
 """
+
+
+MODEL_URL = "https://drive.google.com/file/d/1M5SFB5cYS7Q3oLpkEQVGERXtquwPxury/view?usp=sharing"
+MODEL_SAVE_PATH = "./weights/bert-base-uncased-regression-weights.pth"
 
 
 class RegressionModel(torch.nn.Module):
@@ -59,17 +64,19 @@ class RegressionModel(torch.nn.Module):
 
 
 def init_model() -> Tuple[torch.nn.Module, torch.nn.Module, torch.device]:
-    if not os.path.exists("./weights"):
+    folder = Path("./weights")
+    weights = Path(MODEL_SAVE_PATH)
+    if not folder.exists():
         os.mkdir("./weights")
-    if not os.path.exists("./weights/bert-base-uncased-regression-weights.pth"):
+    if not weights.exists():
         gdown.download(
             fuzzy=True, 
-            url="https://drive.google.com/file/d/1M5SFB5cYS7Q3oLpkEQVGERXtquwPxury/view?usp=sharing",
-            output="./weights/bert-base-uncased-regression-weights.pth")
+            url=MODEL_URL,
+            output=MODEL_SAVE_PATH)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f">>> using device: {device}")
     model = RegressionModel()
-    model.load_state_dict(torch.load("./weights/bert-base-uncased-regression-weights.pth"))
+    model.load_state_dict(torch.load(MODEL_SAVE_PATH))
     model.to(device)
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model.eval()
