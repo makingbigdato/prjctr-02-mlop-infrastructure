@@ -1,3 +1,5 @@
 minio==7.1.11
 pandas==1.4.4
 matplotlib==3.6.0
+tables==3.7.0
+fastparquet==0.8.3

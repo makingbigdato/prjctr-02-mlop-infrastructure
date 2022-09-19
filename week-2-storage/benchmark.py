@@ -33,6 +33,14 @@ def init():
         os.mkdir(ROOT_CSV_DIR)
 
 
+def clean_dataframes():
+    # local clean-up
+    csvs = os.listdir(ROOT_CSV_DIR)
+    for csv in csvs:
+        if os.path.exists(ROOT_CSV_DIR + csv):
+            os.remove(ROOT_CSV_DIR + csv)
+
+
 def tear_down():
     # local clean-up
     csvs = os.listdir(ROOT_CSV_DIR)
@@ -128,6 +136,58 @@ def main():
     pd_mean_read_time_csv = elapsed / repeats
     pd_mean_read_speed_csv_mb_per_sec = (csv_size_mb * repeats) / elapsed
 
+    clean_dataframes()
+
+    # Saving with Pandas in hdfs5 format
+    start = default_timer()
+    for i in range(repeats):
+        dataset.to_hdf(ROOT_CSV_DIR + f"dataset_{str(i).zfill(3)}", mode="w", key="df")
+    elapsed = default_timer() - start
+    print(f"[Pandas/HDFS] Total time for saving {repeats} datasets: {time.strftime('%H:%M:%S', time.gmtime(elapsed))}")
+    print(f"[Pandas/HDFS] Average time for saving dataset: {elapsed/repeats} sec")
+    pd_total_write_time_hdfs = elapsed
+    pd_mean_write_time_hdfs = elapsed / repeats
+    pd_mean_write_speed_hdfs_mb_per_sec = (csv_size_mb * repeats) / elapsed
+
+    # Reading with Pandas from hdfs5 format
+    start = default_timer()
+    dfs = []
+    for i in range(repeats):
+        dfs.append(pd.read_hdf(ROOT_CSV_DIR + f"dataset_{str(i).zfill(3)}"))
+    elapsed = default_timer() - start
+    print(f"[Pandas/HDFS] Total time for reading {repeats} datasets: {time.strftime('%H:%M:%S', time.gmtime(elapsed))}")
+    print(f"[Pandas/HDFS] Average time for reading dataset: {elapsed/repeats} sec")
+    pd_total_read_time_hdfs = elapsed
+    pd_mean_read_time_hdfs = elapsed / repeats
+    pd_mean_read_speed_hdfs_mb_per_sec = (csv_size_mb * repeats) / elapsed
+
+    clean_dataframes()
+
+    # Saving with Pandas in parquet format
+    start = default_timer()
+    for i in range(repeats):
+        dataset.to_parquet(ROOT_CSV_DIR + f"dataset_{str(i).zfill(3)}", compression='gzip')
+    elapsed = default_timer() - start
+    print(f"[Pandas/PARQUET] Total time for saving {repeats} datasets: {time.strftime('%H:%M:%S', time.gmtime(elapsed))}")
+    print(f"[Pandas/PARQUET] Average time for saving dataset: {elapsed/repeats} sec")
+    pd_total_write_time_parquet = elapsed
+    pd_mean_write_time_parquet = elapsed / repeats
+    pd_mean_write_speed_parquet_mb_per_sec = (csv_size_mb * repeats) / elapsed
+
+    # Reading with Pandas from parquet format
+    start = default_timer()
+    dfs = []
+    for i in range(repeats):
+        dfs.append(pd.read_parquet(ROOT_CSV_DIR + f"dataset_{str(i).zfill(3)}"))
+    elapsed = default_timer() - start
+    print(f"[Pandas/PARQUET] Total time for reading {repeats} datasets: {time.strftime('%H:%M:%S', time.gmtime(elapsed))}")
+    print(f"[Pandas/PARQUET] Average time for reading dataset: {elapsed/repeats} sec")
+    pd_total_read_time_parquet = elapsed
+    pd_mean_read_time_parquet = elapsed / repeats
+    pd_mean_read_speed_parquet_mb_per_sec = (csv_size_mb * repeats) / elapsed
+
+    clean_dataframes()
+
     # Uploading datasets to the bucket
     start = default_timer()
     for i, df in enumerate(dfs):
@@ -165,9 +225,13 @@ def main():
     # Benchmark, speed of reading and writing, Mb/sec
     pandas = [pd_mean_write_speed_csv_mb_per_sec, pd_mean_read_speed_csv_mb_per_sec]
     minio = [minio_mean_upload_speed_csv_mb_per_sec, minio_mean_download_speed_csv_mb_per_sec]
+    hdfs5 = [pd_mean_write_speed_hdfs_mb_per_sec, pd_mean_read_speed_hdfs_mb_per_sec]
+    parquet = [pd_mean_write_speed_parquet_mb_per_sec, pd_mean_read_speed_parquet_mb_per_sec]
     index = ["write", "read"]
     df = pd.DataFrame({'pandas': pandas,
-                    'minio': minio}, index=index)
+                    'minio': minio,
+                    'hdfs5': hdfs5,
+                    'parquet': parquet}, index=index)
     ax = df.plot.bar(rot=0, title="Data Processing Speed (Mb/sec)")
     fig = ax.get_figure()
     fig.savefig('benchmark-speed.png')
@@ -175,9 +239,13 @@ def main():
     # Benchmark, time for reading and writing of 1Mb
     pandas = [1/pd_mean_write_speed_csv_mb_per_sec, 1/pd_mean_read_speed_csv_mb_per_sec]
     minio = [1/minio_mean_upload_speed_csv_mb_per_sec, 1/minio_mean_download_speed_csv_mb_per_sec]
+    hdfs5 = [1/pd_mean_write_speed_hdfs_mb_per_sec, 1/pd_mean_read_speed_hdfs_mb_per_sec]
+    parquet = [1/pd_mean_write_speed_parquet_mb_per_sec, 1/pd_mean_read_speed_parquet_mb_per_sec]
     index = ["write", "read"]
     df = pd.DataFrame({'pandas': pandas,
-                    'minio': minio}, index=index)
+                    'minio': minio,
+                    'hdfs5': hdfs5,
+                    'parquet': parquet}, index=index)
     ax = df.plot.bar(rot=0, title="Time for processing 1Mb")
     fig = ax.get_figure()
     fig.savefig('benchmark-time.png')
