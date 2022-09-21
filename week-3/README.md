@@ -21,3 +21,7 @@ Tutorials out of the Internet: garbage
 
 Visit public dashboard to see the resulst: https://wandb.ai/yevhen-k-team/hyperparam-tuning/sweeps/6l725qz5
 
+### Aim Logger
+
+Just follow the [tutorial](https://aimstack.readthedocs.io/en/latest/quick_start/setup.html) and that's it.
+
