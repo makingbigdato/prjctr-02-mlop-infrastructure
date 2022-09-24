@@ -10,3 +10,5 @@ dvc==2.26.2
 dvc-s3==2.20.0
 label-studio==1.5.0.post0
 lakefs-client==0.70.5
+tables==3.7.0
+fastparquet==0.8.3
