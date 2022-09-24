@@ -4,3 +4,4 @@ huggingface_hub
 torch
 scikit-learn
 pytest==7.1.3
+great-expectations==0.15.25
