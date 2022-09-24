@@ -304,3 +304,120 @@ mc ls local/dataset
 - https://dvc.org/doc/start/data-management
 - https://stackoverflow.com/questions/67635688/installation-dvc-on-minio-storage
 
+## Label Studio
+
+Installation
+
+```bash
+pip install label-studio
+label-studio start
+```
+
+Whait for a while for initial set up complete. Then navigate to `localhost:8080`
+
+Usage
+
+1. Create account
+```
+login: user-cli@example.com
+password: password
+```
+2. Create project
+3. Upload folder with images
+4. Select a task (for example, image classification)
+5. Start labeling
+6. After labeling is done you can export results of labeling in different formats (csv, json)
+
+Observations
+
+1. Labeling image for classification task (binary classification) took 14 minutes for 50 images
+2. Tha lack of keyboard shortcuts makes it difficult to swiftly label images
+3. Some UI bugs meke it difficult tu label images
+4. Sloooow response for submitting class for image. Usually it takes 10-15 seconds to submit/update image class in constrast to 1-2 seconds for labeling itself.
+
+Labeling process could take just 2-4 minutes if there were no UI bugs, convenient keyboard shortcuts, and high speed for updating/submitting image class.
+
+Annotations are available in `./week-2-storage/project-1-at-2022-09-18-11-29-88db0606.csv` file.
+
+## LakeFS
+
+Start kubernetes clustar with minio as described earlier.
+
+Pull `lakefs-deploy.yaml` from the [repo](https://github.com/truskovskiyk/ml-in-production-webinars/blob/main/week-2/lake-fs/lakefs-deploy.yaml):
+
+```bash
+wget https://raw.githubusercontent.com/truskovskiyk/ml-in-production-webinars/main/week-2/lake-fs/lakefs-deploy.yaml
+```
+
+Start lakefs on you kubernetes cluster on the namespace where minio running:
+
+```bash
+kubectl apply -f lakefs-deploy.yaml -n minio-tenant-1
+kubectl get all -n minio-tenant-1
+```
+
+```
+NAME                                           READY   STATUS    RESTARTS         AGE
+pod/my-lakefs-65477b5778-zrwv2                 2/2     Running   0                20s
+pod/mytenant-log-0                             1/1     Running   0                2d21h
+pod/mytenant-log-search-api-684698ff6f-77zp7   1/1     Running   23 (2d20h ago)   2d21h
+pod/mytenant-pool-0-0                          1/1     Running   0                2d21h
+pod/mytenant-prometheus-0                      2/2     Running   0                2d20h
+
+NAME                                 TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/minio                        LoadBalancer   10.96.30.21     <pending>     80:30159/TCP     2d21h
+service/my-lakefs                    ClusterIP      10.96.7.33      <none>        80/TCP           20s
+service/mytenant-console             LoadBalancer   10.96.96.214    <pending>     9090:30846/TCP   2d21h
+service/mytenant-hl                  ClusterIP      None            <none>        9000/TCP         2d21h
+service/mytenant-log-hl-svc          ClusterIP      None            <none>        5432/TCP         2d21h
+service/mytenant-log-search-api      ClusterIP      10.96.221.207   <none>        8080/TCP         2d21h
+service/mytenant-prometheus-hl-svc   ClusterIP      None            <none>        9090/TCP         2d20h
+
+NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/my-lakefs                 1/1     1            1           20s
+deployment.apps/mytenant-log-search-api   1/1     1            1           2d21h
+
+NAME                                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/my-lakefs-65477b5778                 1         1         1       20s
+replicaset.apps/mytenant-log-search-api-684698ff6f   1         1         1       2d21h
+
+NAME                                   READY   AGE
+statefulset.apps/mytenant-log          1/1     2d21h
+statefulset.apps/mytenant-pool-0       1/1     2d21h
+statefulset.apps/mytenant-prometheus   1/1     2d20h
+```
+
+Now you're ready to make port forwarding of lakefs:
+
+```bash
+kubectl port-forward service/my-lakefs 8000:80 -n minio-tenant-1
+```
+
+After all pods are started, navigate to the `http://127.0.0.1:8000` and configure your lakefs cluster:
+
+Use the command-line tool `lakectl` to perform Git-like operations on your data. Save the configuration file under ~/.lakectl.yaml:
+
+```yaml
+# lakectl command line configuration - save under the filename $HOME/.lakectl.yaml
+credentials:
+  access_key_id: AKIAJ6D2EKUTNRCWJYTQ
+  secret_access_key: 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
+server:
+  endpoint_url: http://localhost:8000/api/v1
+```
+
+Then:
+- Go to login
+- Create repo (blank repo)
+  - Repository ID: lakefs-datasets
+  - Storage Namespace: local://lakefs-datasets
+  - Default Branch: master
+
+On web UI find lakeFS version: **lakeFS 0.70.5**
+Version is needed to install proper version of python client:
+
+```bash
+pip install 'lakefs_client==0.70.5'
+```
+
+Basic CRUD operations are listed in `./week-2-storage/test_lakefs_crud.py` script.
