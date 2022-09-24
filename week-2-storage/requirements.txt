@@ -1,5 +1,14 @@
 minio==7.1.11
 pandas==1.4.4
 matplotlib==3.6.0
+torch==1.12.0
+huggingface-hub==0.8.1
+transformers==4.20.1
+gdown==4.5.1
+nltk==3.7
+dvc==2.26.2
+dvc-s3==2.20.0
+label-studio==1.5.0.post0
+lakefs-client==0.70.5
 tables==3.7.0
 fastparquet==0.8.3
