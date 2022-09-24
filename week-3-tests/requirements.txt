@@ -1,0 +1,6 @@
+datasets
+transformers
+huggingface_hub
+torch
+scikit-learn
+pytest==7.1.3
