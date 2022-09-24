@@ -1,0 +1,7 @@
+[core]
+    remote = minio
+['remote "minio"']
+    url = s3://dataset
+    endpointurl = http://localhost:8080
+    access_key_id = miniouser
+    secret_access_key = miniopassword
