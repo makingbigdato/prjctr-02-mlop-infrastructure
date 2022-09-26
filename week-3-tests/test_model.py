@@ -1,5 +1,7 @@
+from cgi import print_directory
 import pytest
 from transformers import pipeline
+from train import train, save_model
 
 
 # Using a specific model for sentiment analysis
@@ -54,3 +56,18 @@ class TestModel:
         predicts = model(texts)
         print(predicts)
         assert all([predict["label"] == predicts[0]["label"] for predict in predicts]) and predicts[0]["label"] == "NEG"
+
+    def test_overfit_batch(self):
+        train_config = {
+            "output_dir": "./test-weights",
+            "dataset": "imdb",
+            "n_train": 1,
+            "n_test": 1,
+            "num_train_epochs": 100,
+            "batch_size": 1,
+            "seed": 42,
+            "no_cuda": True,
+            "save_strategy": "no"
+        }
+        _, training_stats = train(**train_config)
+        assert training_stats.training_loss < 0.10
