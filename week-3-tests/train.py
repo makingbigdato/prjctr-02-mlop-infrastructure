@@ -44,7 +44,8 @@ def train(output_dir="./weights",
           num_train_epochs=2,
           batch_size=4,
           seed=42,
-          no_cuda=False):
+          no_cuda=False,
+          save_strategy="epoch"):
     ### Intial Preparation
     # Load data
     imdb = get_dataset(dataset)
@@ -52,8 +53,8 @@ def train(output_dir="./weights",
     # Create a smaller training dataset for faster training times
     small_train_dataset, small_test_dataset = prepare_dataset(imdb, n_train=n_train, n_test=n_test, seed=seed)
     
-    print(small_train_dataset[0])
-    print(small_test_dataset[0])
+    # print(small_train_dataset[0])
+    # print(small_test_dataset[0])
 
     # Set DistilBERT tokenizer
     tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
@@ -82,7 +83,7 @@ def train(output_dir="./weights",
         per_device_eval_batch_size=batch_size,
         num_train_epochs=num_train_epochs,
         weight_decay=0.01,
-        save_strategy="epoch", 
+        save_strategy=save_strategy, 
         push_to_hub=False,
         seed=seed,
         no_cuda=no_cuda,
@@ -99,8 +100,8 @@ def train(output_dir="./weights",
     )
     
     # Train the model
-    trainer.train()    
-    return trainer
+    training_stats = trainer.train()    
+    return trainer, training_stats
 
 
 def inference(sentances=["I love this movie", "This movie sucks!"], pretrain_path="./weights/"):
@@ -129,7 +130,7 @@ if __name__ == "__main__":
 
     output_dir = "./weights"
     if args.action == "train":
-        trainer = train(output_dir)
+        trainer, training_stats = train(output_dir)
         # Save the model locally
         save_model(trainer, output_dir)
         # Compute the evaluation metrics
