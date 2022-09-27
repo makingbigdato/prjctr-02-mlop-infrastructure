@@ -38,6 +38,7 @@ class TestTraining:
             "batch_size" : 1,
             "seed" : 42,
             "no_cuda": False,
+            "save_strategy": "epoch",
         }
         self.model_files = [
             "config.json",
