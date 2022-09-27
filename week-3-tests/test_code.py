@@ -55,18 +55,18 @@ class TestTraining:
             shutil.rmtree(self.output_dir)
 
     def test_train(self):
-        trainer = train(self.output_dir, **self.train_config)
+        trainer, _ = train(self.output_dir, **self.train_config)
         assert trainer is not None and os.path.exists(self.output_dir) and os.path.isdir(self.output_dir)
 
     def test_save_model(self):
-        trainer = train(self.output_dir, **self.train_config)
+        trainer, _ = train(self.output_dir, **self.train_config)
         save_model(trainer, self.output_dir)
         files = os.listdir(self.output_dir)
         for model_file in self.model_files:
             assert model_file in files
 
     def test_inference(self):
-        trainer = train(self.output_dir, **self.train_config)
+        trainer, _ = train(self.output_dir, **self.train_config)
         save_model(trainer, self.output_dir)
         sentances = [
             "simple and interesting movie",
