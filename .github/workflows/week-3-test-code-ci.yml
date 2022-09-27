@@ -1,0 +1,26 @@
+name: week-3-test-model-ci
+
+on:
+  push:
+    branches:
+      - 'week-3-tests'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+
+      - name: Use Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      
+      - name: Install Requirements
+        run: |
+          pip3 install -r ./week-3-tests/requirements.txt
+        
+      - name: Run Tests
+        run: |
+          pytest -s ./week-3-tests/test_code.py
