@@ -133,3 +133,83 @@ Delete local cluster after you're done:
 kubectl delete all --all --all-namespaces
 kind delete cluster --name=local-cluster
 ```
+
+## Training on the Local Kubernetes Cluster
+
+### Build and push Dataset Downloader Docker Image
+
+```bash
+cd load-data
+docker build --rm -t datadownloader .
+docker tag datadownloader:latest yevhenk10s/datadownloader:latest
+docker push yevhenk10s/datadownloader:latest
+```
+
+### Build and push Trainig Docker Image
+
+```bash
+cd train-model
+docker build --rm -t trainonkuber .
+docker tag trainonkuber:latest yevhenk10s/trainonkuber:latest
+docker push yevhenk10s/trainonkuber:latest
+```
+
+### Start the cluster
+
+```bash
+minikube start  --cpus=4 --memory=10Gi
+```
+
+### Enable GPU [FAILED TO MAKE IT WORK]
+
+Follow:
+- https://github.com/kubeflow/examples/blob/master/demos/simple_pipeline/demo_setup/README.md
+- https://stackoverflow.com/questions/67743158
+
+```bash
+docker pull nvidia/k8s-device-plugin:1.9
+kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.12.3/nvidia-device-plugin.yml
+```
+
+### Deploying Kubeflow Pipelines
+
+Follow: https://www.kubeflow.org/docs/components/pipelines/v1/installation/standalone-deployment/
+
+```bash
+export PIPELINE_VERSION=1.8.5
+kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$PIPELINE_VERSION"
+kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io
+kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=$PIPELINE_VERSION"
+```
+
+### Port forward for Web UI
+
+```bash
+kubectl port-forward service/ml-pipeline-ui 8000:80 -n kubeflow
+```
+
+### Compile pipline
+
+```bash
+python pipeline.py
+```
+
+### Pull big images
+
+For some reason `minikube` [fails](https://github.com/kubernetes/minikube/issues/14806) to pool big images. As the workaround use the next recipe:
+
+```bash
+minikube ssh docker pull yevhenk10s/datadownloader:latest
+minikube ssh docker pull yevhenk10s/trainonkuber:latest
+```
+
+### Run experiment with the use of Web UI
+
+Navigate to `localhost:8000`, upload `training-pipeline.yaml` and start training.
+
+### Clean up the cluster
+
+```bash
+minikube stop
+minikube delete
+```
