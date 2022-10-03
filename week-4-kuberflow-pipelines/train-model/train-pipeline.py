@@ -7,7 +7,7 @@ import numpy as np
 
 
 def train(
-    dataset_content: str,
+    dataset_path: str,
     scores_path: str,
     out_model_path: str,
     max_depth: int = 5, 
@@ -18,10 +18,8 @@ def train(
     ### Intial Preparation
     # Load data
     # Open and reads file "data"
-    # with open(dataset_path) as f:
-    #     dataset = json.load(f) 
-    dataset = json.loads(dataset_content)
-    dataset = dict(dataset)
+    with open(dataset_path) as f:
+        dataset = json.load(f) 
 
     X_train = dataset['x_train']
     y_train = dataset['y_train']
@@ -77,10 +75,10 @@ def train(
 
 if __name__ == "__main__":
     # Defining and parsing the command-line arguments
-    # python train-pipeline.py --dataset-content="$(cat ../load-data/dataset.json)" --scores-path=scores.json --out-model-path=cls.pekl --max-depth=5 --n-estimators=10 --max-features=1 --random-state=1337
+    # python train-pipeline.py --dataset-path=../load-data/dataset.json --scores-path=scores.json --out-model-path=cls.pekl --max-depth=5 --n-estimators=10 --max-features=1 --random-state=1337
     parser = argparse.ArgumentParser(description='Train on k8s pipeline')
 
-    parser.add_argument('--dataset-content', type=str, required=True)
+    parser.add_argument('--dataset-path', type=str, required=True)
     parser.add_argument('--scores-path', type=str, required=True)
     parser.add_argument('--out-model-path', type=str, required=True)
     parser.add_argument('--max-depth', type=int, required=True)
@@ -91,7 +89,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     train(
-        dataset_content = args.dataset_content,
+        dataset_path = args.dataset_path,
         scores_path = args.scores_path,
         out_model_path = args.out_model_path,
         max_depth = args.max_depth,

@@ -1,0 +1,101 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: training-pipeline-example-
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.14, pipelines.kubeflow.org/pipeline_compilation_time: '2022-10-03T20:34:42.901398',
+    pipelines.kubeflow.org/pipeline_spec: '{"description": "Demonstrate the Kubeflow
+      pipelines SDK without GPUs", "name": "Training Pipeline Example"}'}
+  labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.8.14}
+spec:
+  entrypoint: training-pipeline-example
+  templates:
+  - name: dataset-downloading
+    container:
+      args: [--n-samples, '200', --noise, '0.3', --random-state, '0', --out-file,
+        dataset.json]
+      command: [python3, /load-data/download-dataset.py]
+      image: yevhenk10s/datadownloader:latest
+    outputs:
+      artifacts:
+      - {name: dataset-downloading-dataset, path: /load-data/dataset.json}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.14
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: get-training-metrics
+    container:
+      args: ['echo "{{inputs.parameters.test-training-scores}}"']
+      command: [sh, -c]
+      image: library/bash:4.4.23
+    inputs:
+      parameters:
+      - {name: test-training-scores}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.14
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: test-training
+    container:
+      args: [--dataset-path, /load-data/dataset.json, --scores-path, scores.json,
+        --out-model-path, cls.pekl, --max-depth, '5', --n-estimators, '10', --max-features,
+        '1', --random-state, '1337']
+      command: [python3, /train-dir/train-pipeline.py]
+      image: yevhenk10s/trainonkuber:latest
+    inputs:
+      artifacts:
+      - {name: dataset-downloading-dataset, path: /load-data/dataset.json}
+    outputs:
+      parameters:
+      - name: test-training-scores
+        valueFrom: {path: /train-dir/scores.json}
+      artifacts:
+      - {name: test-training-model, path: /train-dir/cls.pekl}
+      - {name: test-training-scores, path: /train-dir/scores.json}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.14
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  - name: training-pipeline-example
+    dag:
+      tasks:
+      - {name: dataset-downloading, template: dataset-downloading}
+      - name: get-training-metrics
+        template: get-training-metrics
+        dependencies: [test-training]
+        arguments:
+          parameters:
+          - {name: test-training-scores, value: '{{tasks.test-training.outputs.parameters.test-training-scores}}'}
+      - name: test-training
+        template: test-training
+        dependencies: [dataset-downloading]
+        arguments:
+          artifacts:
+          - {name: dataset-downloading-dataset, from: '{{tasks.dataset-downloading.outputs.artifacts.dataset-downloading-dataset}}'}
+      - name: upload-model
+        template: upload-model
+        dependencies: [test-training]
+        arguments:
+          artifacts:
+          - {name: test-training-model, from: '{{tasks.test-training.outputs.artifacts.test-training-model}}'}
+  - name: upload-model
+    container:
+      args: [--model-path, /train-dir/cls.pekl]
+      command: [python3, handler.py]
+      env:
+      - {name: WANDB_PROJECT, value: artifact-storage}
+      - {name: WANDB_API_KEY, value: 87adf2d042e1b96543d97c47d1a0bcebe75ab372}
+      image: yevhenk10s/artifacthandler:latest
+    inputs:
+      artifacts:
+      - {name: test-training-model, path: /train-dir/cls.pekl}
+    metadata:
+      labels:
+        pipelines.kubeflow.org/kfp_sdk_version: 1.8.14
+        pipelines.kubeflow.org/pipeline-sdk-type: kfp
+        pipelines.kubeflow.org/enable_caching: "true"
+  arguments:
+    parameters: []
+  serviceAccountName: pipeline-runner

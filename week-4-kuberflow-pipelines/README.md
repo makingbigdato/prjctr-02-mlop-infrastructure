@@ -154,6 +154,15 @@ docker tag trainonkuber:latest yevhenk10s/trainonkuber:latest
 docker push yevhenk10s/trainonkuber:latest
 ```
 
+### Build and push Model Handler Docker Image
+
+```bash
+cd artifact-handler
+docker build --rm -t artifacthandler .
+docker tag artifacthandler:latest yevhenk10s/artifacthandler:latest
+docker push yevhenk10s/artifacthandler:latest
+```
+
 ### Start the cluster
 
 ```bash
@@ -186,6 +195,14 @@ kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/dev?ref=
 
 ```bash
 kubectl port-forward service/ml-pipeline-ui 8000:80 -n kubeflow
+kubectl port-forward service/ml-pipeline-ui 8888:80 -n kubeflow
+```
+
+Default login and password for minio are:
+
+```
+accesskey: minio
+secretkey: minio123
 ```
 
 ### Compile pipline
@@ -196,11 +213,19 @@ python pipeline.py
 
 ### Pull big images
 
-For some reason `minikube` [fails](https://github.com/kubernetes/minikube/issues/14806) to pool big images. As the workaround use the next recipe:
+For some reason `minikube` [fails](https://github.com/kubernetes/minikube/issues/14806) to pull big images. As the workaround use the next recipe:
 
 ```bash
 minikube ssh docker pull yevhenk10s/datadownloader:latest
 minikube ssh docker pull yevhenk10s/trainonkuber:latest
+minikube ssh docker pull yevhenk10s/artifacthandler:latest
+```
+
+### Set up WandB env vars
+
+```
+export WANDB_PROJECT=artifact-storage
+export WANDB_API_KEY=****************
 ```
 
 ### Run experiment with the use of Web UI
