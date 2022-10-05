@@ -58,7 +58,7 @@ def training_op(
   )
 
 def postprocessing_op(scores,
-                      step_name='Get Training Metrics'):
+                      step_name='Get Results'):
   return kfp.ContainerOp(
     name=step_name,
     image='library/bash:4.4.23',
@@ -67,18 +67,51 @@ def postprocessing_op(scores,
   )
 
 def artifact_handler(model_path: str,
-                     step_name='Upload Model'):
+                     action: str,
+                     step_name='Trained Model Handler'):
+  arguments = []
+  file_outputs = None
+  if action == "upload":
+    arguments = ["--model-path", model_path]
+  elif action == "download":
+    arguments = ["--save-to", model_path]
+    file_outputs = {"model": f"{model_path}/cls.pekl",}
+  else:
+    raise ValueError(f"Invalid `action`: {action}. Must be `upload` or `download`")
   handler = kfp.ContainerOp(
     name=step_name,
     image="yevhenk10s/artifacthandler:latest",
     command="python3 handler.py".split(),
-    arguments=["--model-path", model_path]
+    arguments=arguments,
+    file_outputs=file_outputs,
   )
   env_var_project = V1EnvVar(name="WANDB_PROJECT", value=WANDB_PROJECT)
   handler = handler.add_env_variable(env_var_project)
   env_var_password = V1EnvVar(name="WANDB_API_KEY", value=WANDB_API_KEY)
   handler = handler.add_env_variable(env_var_password)
   return handler
+
+
+def inference_op(
+  model_path: str,
+  data_path: str,
+  results_path: str = "res.json",
+  step_name='Inference Step'
+):
+  return kfp.ContainerOp(
+    name=step_name,
+    image="yevhenk10s/inference:latest",
+    command="python3 inference-pipeline.py".split(),
+    arguments=[
+      "--model-path", model_path,
+      "--data-path", data_path,
+      "--results-path", results_path,
+    ],
+    file_outputs={
+      "results": f"/inference-dir/{results_path}",
+    }
+  )
+
 
 @kfp.pipeline(
   name='Training Pipeline Example',
@@ -87,9 +120,26 @@ def artifact_handler(model_path: str,
 def kubeflow_training():
   dataset = download_dataset_op()
   training = training_op(dataset_path=kfp.InputArgumentPath(dataset.outputs["dataset"], path="/load-data/dataset.json"))  # .set_gpu_limit(1)
-  handler = artifact_handler(model_path=kfp.InputArgumentPath(training.outputs["model"], path="/train-dir/cls.pekl"))
+  handler = artifact_handler(
+    model_path=kfp.InputArgumentPath(training.outputs["model"], path="/train-dir/cls.pekl"),
+    action="upload")
   postprocessing = postprocessing_op(scores=training.outputs["scores"])
+
+
+@kfp.pipeline(
+  name="Inference Pipeline Example",
+  description="Inference with the trined model with the use of Kubeflow Piplines"
+)
+def kubeflow_inference():
+  dataset = download_dataset_op()
+  handler = artifact_handler(model_path="./", action="download")
+  inference = inference_op(
+    model_path=kfp.InputArgumentPath(handler.outputs["model"], path="/artifact-handler/cls.pekl"),
+    data_path=kfp.InputArgumentPath(dataset.outputs["dataset"], path="/load-data/dataset.json"),)
+  postprocessing = postprocessing_op(scores=inference.outputs["results"])
+
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
   compiler.Compiler().compile(kubeflow_training, "training-pipeline.yaml")
+  compiler.Compiler().compile(kubeflow_inference, "inference-pipeline.yaml")
