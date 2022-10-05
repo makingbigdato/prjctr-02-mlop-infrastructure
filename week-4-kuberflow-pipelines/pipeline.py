@@ -137,7 +137,9 @@ def kubeflow_inference():
     model_path=kfp.InputArgumentPath(handler.outputs["model"], path="/artifact-handler/cls.pekl"),
     data_path=kfp.InputArgumentPath(dataset.outputs["dataset"], path="/load-data/dataset.json"),)
   postprocessing = postprocessing_op(scores=inference.outputs["results"])
-
+  handler = artifact_handler(
+    model_path=kfp.InputArgumentPath(inference.outputs["results"], path="/inference-dir/res.json"),
+    action="upload")
 
 if __name__ == '__main__':
   import kfp.compiler as compiler
