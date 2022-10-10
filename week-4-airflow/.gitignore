@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+airflow-home/logs/
+airflow-home/airflow*
+airflow-home/standalone*
+airflow-home/webserver*
