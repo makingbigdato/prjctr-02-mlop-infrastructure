@@ -17,4 +17,9 @@ curl 127.0.0.1:8000
 
 4. Check the generated docs: http://127.0.0.1:8000/docs
 
+5. Run tests
+
+```bash
+python -m pytest
+```
 
