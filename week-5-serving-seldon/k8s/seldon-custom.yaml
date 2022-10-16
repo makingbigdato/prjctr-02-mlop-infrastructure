@@ -1,0 +1,38 @@
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: classifier-sample
+  namespace: default
+spec:
+  annotations:
+    seldon.io/rest-timeout: "60"
+    seldon.io/grpc-timeout: "60"
+  protocol: seldon
+  predictors:
+  - componentSpecs:
+    - spec:
+        containers:
+        - image: yevhenk10s/seldon-predictor:latest
+          name: classifier
+          env:
+          - name: GUNICORN_THREADS
+            value: '1'
+          - name: GUNICORN_WORKERS
+            value: '1'
+          - name: FLASK_SINGLE_THREADED
+            value: '1'
+          - name: SELDON_DEBUG
+            value: '1'
+          - name: ACCESS_KEY
+            value: miniouser
+          - name: SECRET_KEY
+            value: miniopassword
+          - name: MINIO_URI
+            value: '192.168.1.102:8080'
+          imagePullPolicy: Always
+
+    graph:
+      name: classifier
+      type: MODEL
+    name: model
+    replicas: 1
