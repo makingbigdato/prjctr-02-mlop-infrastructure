@@ -4,3 +4,5 @@ wandb/
 *.pekl
 *.joblib
 istio-1.15.2/
+.pytest_cache/
+__pycache__/
