@@ -1,0 +1,5 @@
+venv/
+weights/
+.benchmarks/
+.pytest_cache/
+__pycache__/

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nlp-app
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nlp-app
+    spec:
+      containers:
+        - name: api-container
+          image: yevhenk10s/bert-api:latest
+          ports:
+          - containerPort: 5000

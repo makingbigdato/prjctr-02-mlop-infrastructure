@@ -1,0 +1,39 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: nlp-streamlit-deployment
+  labels:
+    app : my-k8s-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: nlp-streamlit-app
+  template:
+    metadata:
+      labels:
+        project: nlp-streamlit-app   # Service will look for those PODS Labels!!!
+    spec:
+      containers:
+        - name : streamlit-container
+          image: yevhenk10s/bert-streamlit:latest
+          ports:
+            - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit-service
+  labels:
+    env  : prod
+    owner: yevhen
+spec:
+  selector:
+    project: nlp-streamlit-app    # Selecting PODS with those Labels
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 80    # Port on Load Balancer
+      targetPort: 5000  # Port on POD
+  type: LoadBalancer
