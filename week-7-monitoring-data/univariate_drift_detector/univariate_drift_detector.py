@@ -35,7 +35,7 @@ def inference(
 
 
     drift_0 = cd_0.predict(X[:, 0])
-    drift_1 = cd_0.predict(X[:, 1])
+    drift_1 = cd_1.predict(X[:, 1])
 
     # Simulate handling detected drift and passing alerts forward
     if drift_0["data"]["is_drift"] == 1:
