@@ -1,0 +1,15 @@
+# Airflow infrastructure
+apache-airflow==2.4.1
+kfp==1.8.14
+apache-airflow-providers-cncf-kubernetes==3.0.0
+kubernetes==11.0.0
+psycopg2==2.9.4
+
+# WandB
+wandb==0.13.3
+
+# Univariate drift detection
+scikit-learn==1.1.2
+alibi-detect==0.10.4
+# backend for MMDDrift
+torch==1.12.0

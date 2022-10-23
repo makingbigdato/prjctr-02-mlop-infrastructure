@@ -1,0 +1,5 @@
+__pycache__/
+logs/
+airflow*
+webserver_config.py
+standalone_admin_password.txt
