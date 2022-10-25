@@ -1,4 +1,3 @@
-import os
 from typing import List, Text, Tuple
 from pathlib import Path
 import torch
@@ -18,7 +17,7 @@ def init_model() -> Tuple[torch.nn.Module, torch.nn.Module, torch.device]:
     folder = Path("./weights")
     weights = Path(MODEL_SAVE_PATH)
     if not folder.exists():
-        os.mkdir("./weights")
+        folder.mkdir()
     if not weights.exists():
         gdown.download(
             fuzzy=True, 
@@ -62,8 +61,12 @@ class RequestBody(BaseModel):
     texts: List[Text]
 
 
-@app.post("/")
-async def inference_response(request: RequestBody):
+class ResponseBody(BaseModel):
+    results: List[float]
+
+
+@app.post("/", response_model=ResponseBody)
+def inference_response(request: RequestBody):
     results = inference(request.texts, model, tokenizer, device)
     return {"results": results}
 
