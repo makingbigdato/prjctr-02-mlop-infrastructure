@@ -83,10 +83,10 @@ minikube start  --cpus=4 --memory=10Gi
 minikube ssh docker pull yevhenk10s/bert-api:latest
 kubectl apply -f k8s/service-api.yaml
 kubectl port-forward service/nlp-service 8080:80 --address='0.0.0.0' -n default
-curl localhost:8080
+curl localhost:8080/predict
 >>> {"response": "ok", "runtime": "cpu"}
 
-curl -X POST localhost:8080 -H 'Content-Type: application/json' -d '{"texts": ["hello, world", "this is a sentance"]}'
+curl -X POST localhost:8080/predict -H 'Content-Type: application/json' -d '{"texts": ["hello, world", "this is a sentance"]}'
 >>> {"response": [[0.8008355498313904], [-0.8118988275527954]], "runtime": "cpu"}
 
 minikube stop
@@ -98,10 +98,10 @@ Alternatively you can test deployment (but first, delete service `kubectl delete
 ```bash
 kubectl apply -f k8s/deployment-api.yaml
 kubectl port-forward service/nlp-service 5000:80 --address='0.0.0.0' -n default
-curl localhost:5000
+curl localhost:5000/predict
 >>> {"response": "ok", "runtime": "cpu"}
 
-curl -X POST localhost:5000 -H 'Content-Type: application/json' -d '{"texts": ["hello, world", "this is a sentance"]}'
+curl -X POST localhost:5000/predict -H 'Content-Type: application/json' -d '{"texts": ["hello, world", "this is a sentance"]}'
 >>> {"response": [[0.8008355498313904], [-0.8118988275527954]], "runtime": "cpu"}
 ```
 
