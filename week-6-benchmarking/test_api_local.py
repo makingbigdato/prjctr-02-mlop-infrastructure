@@ -9,4 +9,4 @@ class QuickstartUser(HttpUser):
 
     @task
     def post_request(self):
-        self.client.post("/", json=PAYLOAD)
+        self.client.post("/predict", json=PAYLOAD)

@@ -19,6 +19,13 @@ test_benchmark_forwardpass_cpu     35.3109 (5.15)
 ----------------------------------------------------
 ```
 
+Test set up:
+- CPU: Intel Core i5-8300H CPU @ 2.30GHz x 8
+- RAM: 15.5GiB
+- GPU: NVIDIA GeForce GTX 1050 Ti
+- DRAM: 4096 MiB
+- CUDA: 11.7
+
 ## PR benchmark for your model API
 
 1. Build docker image with the API
@@ -52,6 +59,13 @@ Results:
 | POST | /          | 2200   | 80(3.64%) | 2988 | 424 | 14541 | 2000 | 108.40 | 1.20       |
 |      | Aggregated | 2200   | 80(3.64%) | 2988 | 424 | 14541 | 2000 | 108.40 | 1.20       |
 
+Test set up:
+- CPU: Intel Core i5-8300H CPU @ 2.30GHz x 8
+- RAM: 15.5GiB
+- GPU: NVIDIA GeForce GTX 1050 Ti
+- DRAM: 4096 MiB
+- CUDA: 11.7
+- Noisy neighbours: default minikube cluster activity
 
 ### Conclusion
 
