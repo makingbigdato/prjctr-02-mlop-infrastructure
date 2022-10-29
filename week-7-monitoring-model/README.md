@@ -154,3 +154,51 @@ python client.py
 3. Select `Prometeus` as the data source
 4. In the dropdown menu `Metrics` select metrics you've prepared in `Predictor.py`
 5. Then press `Apply` and `Save` dashboard
+
+
+## PR2. Managed model monitoring tool for your model: Example Arize
+
+Follow the documentation and examples:
+- https://docs.arize.com/arize/examples/common-model-types
+- https://colab.research.google.com/github/Arize-ai/tutorials_python/blob/main/Arize_Tutorials/Model_Types/Arize_Tutorial_Log_Regression_Boston_House_Prices_With_PandasLogger.ipynb
+- https://colab.research.google.com/github/Arize-ai/tutorials_python/blob/main/Arize_Tutorials/Model_Types/Arize_Tutorial_Log_Score_Categorical_Breast_Cancer_With_PandasLogger.ipynb
+
+
+1. Load initial training and validation datasets
+
+```bash
+python ../week-4-kuberflow-pipelines/load-data/download-dataset.py --n-samples=300 --noise=0.3 --random-state=0 --out-file=training-dataset.json
+
+python ../week-4-kuberflow-pipelines/load-data/download-dataset.py --n-samples=300 --noise=0.6 --random-state=42 --out-file=validation-dataset.json
+```
+
+2. Download pretrained model
+
+```bash
+export WANDB_API_KEY=bc80cf5faf07246e0634fcc56ca1e241075d38e6
+export WANDB_PROJECT=artifact-storage
+wandb artifact get yevhen-k-team/artifact-storage/model:latest --root .
+```
+
+3. Get Arize `API_KEY` and `SPACE_KEY` by navigating to the settings page in your workspace.
+
+Put env vars to `.env` file.
+
+4. Run
+
+```bash
+python arize-client-demo.py
+```
+
+5. Navigate to https://app.arize.com, open `Models` --> `YOUR-MODEL-NAME`
+
+Wait for a while because:
+```
+Data will be available in the UI about 10 minutes after it was received.
+```
+
+### Get Familiar with Docs
+
+- https://docs.arize.com/arize/examples/logging-to-arize-tutorials
+- https://docs.arize.com/arize/product-guides/quickstart/python-real-time
+
