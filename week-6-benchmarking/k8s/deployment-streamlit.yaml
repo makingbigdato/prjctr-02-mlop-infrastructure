@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-streamlit-deployment
+spec:
+  selector:
+    matchLabels:
+      app: nlp-streamlit-app
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: nlp-streamlit-app
+    spec:
+      containers:
+        - name: streamlit-container
+          image: yevhenk10s/bert-streamlit:latest
+          ports:
+          - containerPort: 5000

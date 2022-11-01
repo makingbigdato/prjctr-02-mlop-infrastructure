@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!./model.py
+!./app.py
+!./requirements.txt
+!./Dockerfile
