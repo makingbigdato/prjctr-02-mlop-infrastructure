@@ -92,3 +92,65 @@ Run training:
 cd /train
 python train.py
 ```
+
+## PR3. Inference online API which pulls data from feature store
+
+1. Build inference container
+
+```bash
+cd feast-inference
+docker build --rm -t feast-inference .
+```
+
+2. Run training to prepare the model
+
+```bash
+docker run -it -v $PWD/features:/train/features \
+    -v $PWD/data:/train/data \
+    -v $PWD/model:/train/model \
+    -p 8080:8080 \
+    feast-training:latest \
+    /bin/bash train.sh --repo-path /train/features/ --model-path /train/model/model.bin
+```
+
+3. Run inference container
+
+3.1 Test Inference container
+
+Start container
+
+```bash
+docker run -it \
+    -v $PWD/features:/train/features \
+    -v $PWD/data:/train/data \
+    -v $PWD/model:/train/model \
+    -v $PWD/feast-inference:/inference \
+    -p 8080:8080 \
+    -p 8000:8000 \
+    feast-inference:latest /bin/bash
+```
+
+Materialize online store
+
+Apply feast schema:
+```bash
+cd /train/features/
+feast materialize-incremental 2022-01-01T00:00:00
+```
+
+Run server inside container
+
+```bash
+cd /inference
+uvicorn inference:app --reload --host 0.0.0.0 --port 8000
+```
+
+Make test requests
+
+```bash
+curl localhost:8000
+>>> {"status":"ok"}
+
+curl -X POST localhost:8000/best-driver -H 'Content-Type: application/json' -d '{"driver_ids": [1001, 1002, 1003, 1004]}'
+>>> 1001
+```
