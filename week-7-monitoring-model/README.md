@@ -89,7 +89,7 @@ docker push yevhenk10s/model-monitoring:latest
 Start the container:
 
 ```bash
-export WANDB_API_KEY=061dc0c4c510ff84584bd05674e492de2053d9da
+export WANDB_API_KEY=****
 
 export WANDB_PROJECT=artifact-storage
 
@@ -175,7 +175,7 @@ python ../week-4-kuberflow-pipelines/load-data/download-dataset.py --n-samples=3
 2. Download pretrained model
 
 ```bash
-export WANDB_API_KEY=bc80cf5faf07246e0634fcc56ca1e241075d38e6
+export WANDB_API_KEY=****
 export WANDB_PROJECT=artifact-storage
 wandb artifact get yevhen-k-team/artifact-storage/model:latest --root .
 ```
