@@ -1,0 +1,47 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: inference-deployment
+  labels:
+    app : crack-classifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      project: crack-classifier-api
+  template:
+    metadata:
+      labels:
+        project: crack-classifier-api   # Service will look for those PODS Labels!!!
+    spec:
+      containers:
+        - name : inference-api-container
+          image: yevhenk10s/inference:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ENDPOINT
+              value: "192.168.1.104:9000"
+            - name: ACCESS_KEY
+              value: "minio"
+            - name: SECRET_KEY
+              value: "minio123"
+          command: ["uvicorn"]
+          args: ["app:app", "--reload", "--host=0.0.0.0"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-service
+  labels:
+    env  : prjctr
+    owner: yevhen
+spec:
+  selector:
+    project: crack-classifier-api    # Selecting PODS with those Labels
+  ports:
+    - name      : app-listener
+      protocol  : TCP
+      port      : 8000  # Port on Load Balancer
+      targetPort: 8000  # Port on POD
+  type: LoadBalancer

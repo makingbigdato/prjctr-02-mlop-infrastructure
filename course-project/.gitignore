@@ -1,0 +1,12 @@
+dataset/
+venv/
+__pycache__/
+.pytest_cache/
+*.pth
+
+# airflow stuff
+training-pipeline/airflow-home/logs/
+*pid
+airflow.cfg
+airflow.db*
+training-pipeline/airflow-home/webserver_config.py
