@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # This name uniquely identifies the PVC. Will be used in deployment below.
+  name: aim-pv-claim
+  labels:
+    app: aim-storage-claim
+spec:
+  # Read more about access modes here: http://kubernetes.io/docs/user-guide/persistent-volumes/#access-modes
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    # This is the request for storage. Should be available in the cluster.
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  # This name uniquely identifies the Deployment
+  name: aim-deployment
+spec:
+  selector:
+    matchLabels:
+      app: aim
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        # Label is used as selector in the service.
+        app: aim
+    spec:
+      # Refer to the PVC created earlier
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          # Name of the PVC created earlier
+          claimName: aim-pv-claim
+      containers:
+      - name: aim-container
+        # Pulls the default Minio image from Docker Hub
+        image: yevhenk10s/aim-k8s:latest
+        command: ["bash", "-xec"]
+        args:
+        - "aim init --repo /aim && aim server --repo /aim | aim up --host 0.0.0.0 --port 43800 --workers 2 --repo /aim"
+        # - "rm -rf /aim/*"
+        ports:
+        - name: ui
+          containerPort: 43800
+          hostPort: 43800
+        - name: back
+          containerPort: 53800
+          hostPort: 53800
+        # Mount the volume into the pod
+        volumeMounts:
+        - name: storage # must match the volume name, above
+          mountPath: "/aim"

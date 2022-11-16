@@ -1,0 +1,6 @@
+torch==1.13.0
+torchvision==0.14.0
+fastapi==0.85.0
+uvicorn==0.18.3
+minio==7.1.11
+python-multipart==0.0.5
